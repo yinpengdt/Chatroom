@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="http://libs.baidu.com/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+        $(function(){
+            nickname = $("#nickname").val()
+            roomid = $("#roomid").val()
+            $("#btn1").click(function(){
+                sendText()
+            })
+            function requestText(){
+                host = "ws://119.2.19.47:6111/chat/newChatStatus?roomid=" + roomid + "&nickname=" + nickname
+                websocket = new WebSocket(host)
+                websocket.onopen = function(evt){}      // 建立连接
+                websocket.onmessage = function(evt){    // 获取服务器返回的信息
+                    data = $.parseJSON(evt.data)
+                    console.log(data)
+                    if(data['from']=='sys'){
+                        $('#chatinfo').append("<p style='width: 100%; text-align:center; font-size: 16px; color: green'>" + data['message'] + "</p>");
+                    }else if(data['from']==nickname){
+                        $('#chatinfo').append("<p style='width: 100%; text-align:right; font-size:15px'>" + nickname + ": <br>" +"<span style='color: blue'>" + data['message'] + "</span>" + "</p>");
+                    }else{
+                        $('#chatinfo').append("<p style='width: 100%; text-align:left; font-size:15px'>" + data['from'] + ": <br>" +"<span style='color: red'>" + data['message'] + "</span>" + "</p>");
+                    }
+
+                }
+                websocket.onerror = function(evt){}
+            }
+
+            requestText()   // 开始 websocket
+
+            function sendText(){    // 向服务器发送信息
+                websocket.send($("#chat_text").val())
+            }
+        })
+    </script>
+    <!--<script>-->
+        <!--$(function(){-->
+            <!--nickname = $("#nickname").val()-->
+            <!--roomid = $("#roomid").val()-->
+            <!--$("#btn").click(function(){-->
+                <!--sendText()-->
+            <!--})-->
+            <!--function requestText(){-->
+                <!--host = "ws://119.2.19.47:6111/chat/newChatStatus?roomid=" + roomid + "&nickname=" + nickname-->
+                <!--websocket = new WebSocket(host)-->
+                <!--websocket.onopen = function(evt){}      // 建立连接-->
+                <!--websocket.onmessage = function(evt){    // 获取服务器返回的信息-->
+                    <!--data = $.parseJSON(evt.data)-->
+                    <!--if(data['from']=='sys'){-->
+                        <!--$('#chatinfo').append("<p style='width: 100%; text-align:center; font-size: 16px; color: green'>" + data['message'] + "</p>");-->
+                    <!--}else if(data['from']==nickname){-->
+                        <!--$('#chatinfo').append("<p style='width: 100%; text-align:right; font-size:15px'>" + nickname + ": <br>" +"<span style='color: blue'>" + data['message'] + "</span>" + "</p>");-->
+                    <!--}else{-->
+                        <!--$('#chatinfo').append("<p style='width: 100%; text-align:left; font-size:15px'>" + data['from'] + ": <br>" +"<span style='color: red'>" + data['message'] + "</span>" + "</p>");-->
+                    <!--}-->
+
+                <!--}-->
+                <!--websocket.onerror = function(evt){}-->
+            <!--}-->
+
+            <!--requestText()   // 开始 websocket-->
+
+            <!--function sendText(){    // 向服务器发送信息-->
+                <!--websocket.send($("#chat_text").val())-->
+            <!--}-->
+        <!--})-->
+    <!--</script>-->
+</head>
+<body>
+<div align="center">
+    <div style="width: 70%">
+        <h1>聊天室（{{ roomid }}）!</h1>
+        <input type="hidden" value="{{ roomid }}" id="roomid">
+        <input type="hidden" value="{{ nickname }}" id="nickname">
+
+        <div id="chatinfo" style="padding:10px;border: 1px solid #888">
+            <!-- 聊天内容 -->
+        </div>
+
+        <div style="clear: both; text-align:right; margin-top: 20px">
+            <input type="text" name="chat_text" id="chat_text">
+            <!--<button id="btn">发送</button>-->
+            <button id="btn1">发送</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

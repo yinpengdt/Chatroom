@@ -1,0 +1,14 @@
+*.pyc
+.python-version
+*.orig
+*.swp
+*.swo
+.*/
+nohup.out
+static/combo/*
+gzh_vue/v2
+.DS_Store
+scss/
+static/css/*.scss
+static/css/*.map
+*.idea
