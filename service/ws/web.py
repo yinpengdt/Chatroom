@@ -24,20 +24,13 @@ class NewChatStatus(WebSocketHandler, BaseHandler):
     def open(self):
         roomid = str(self.get_argument('roomid'))
         self.pika_client = ConnPikaClient()
-
-        # Share common tornado connections and channel with  RabbitMQ
         self.pika_client.connected = self.application.pc.connected
         self.pika_client.connection = self.application.pc.connection
         self.pika_client.connecting = self.application.pc.connecting
         self.pika_client.io_loop = self.application.pc.io_loop
         self.pika_client.channel = self.application.pc.channel
         self.pika_client.exchange = roomid
-
-        # Assign websocket object to a Pika client object attribute.
         self.pika_client.websocket = self
-
-        # print rabbit_conn.connection,rabbit_conn.connected, rabbit_conn.connecting, rabbit_conn.channel
-
         IOLoop.current().add_timeout(1000, self.pika_client.setup_exchange)
 
     def on_message(self, msg):

@@ -35,11 +35,6 @@ class PikaClient:
 
     def on_channel_open(self, channel):
         self.channel = channel
-        # channel.basic_consume(on_message_callback = self.on_message, queue='hello', auto_ack=True)
-        # self.channel.exchange_declare(exchange='tornado',
-        #                               type="direct",
-        #                               auto_delete=True,
-        #                               durable=False)
 
     def on_closed(self, conn, c):
         logging.error('pika close!')
@@ -48,8 +43,6 @@ class PikaClient:
 
 class ConnPikaClient(object):
     def __init__(self):
-        # Construct a queue name we'll use for this instance only
-        # Giving unique queue for each consumer under a channel.
         self.queue_name = "queue-%s" % (id(self),)
 
         # Default values
@@ -93,24 +86,17 @@ class ConnPikaClient(object):
     def on_pika_message(self, channel, method, header, body):
         logging.error('PikaCient: Message receive, delivery tag #%i' % \
                       method.delivery_tag)
-
-        # Send the Cosumed message via Websocket to browser.
         self.websocket.write_message(body)
 
     def on_basic_cancel(self):
         logging.error('PikaClient: Basic Cancel Ok')
-
-        # Close the consumer/queue associated with this websocket client or browser.
         self.channel.queue_delete(queue=self.queue_name)
 
     def on_closed(self, connection):
-        # We've closed our pika connection so stop the demo
         self.io_loop.stop()
 
     def sample_message(self, exchange, message):
-        # Publish the message from Websocket to RabbitMQ
         properties = pika.BasicProperties(content_type="text/plain", delivery_mode=1)
-
         self.channel.basic_publish(exchange=exchange,
                                    routing_key='',
                                    body=message,
